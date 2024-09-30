@@ -2,7 +2,7 @@
     <h1>{{name}}</h1>
     <p>Published {{published}}</p>
     {{#author}}
-        <p>Author {{name}}</p>
+        <p>Author <a href="/author/{{id}}">{{name}}</a></p>
     {{/author}}
     <p><img src="/images/{{image}}" alt=""></p>
     {{{body}}}
