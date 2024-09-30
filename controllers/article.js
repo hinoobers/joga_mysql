@@ -34,7 +34,6 @@ const getArticleBySlug = (req, res) => {
                 `
     con.query(query, (err, result) => {
         if(err) throw err;
-        console.log(result);
         res.render("article", {article: result})
     })
 }

@@ -27,22 +27,7 @@ const articleRoutes = require("./routes/article")
 
 app.use("/", articleRoutes)
 app.use("/article", articleRoutes)
-
-app.get("/author/:slug", (req, res) => {
-    const authorId = req.params.slug;
-
-    con.query(`SELECT * FROM author WHERE id=${authorId}`, (err, ress) => {
-        con.query(`SELECT * FROM article WHERE author_id=${authorId}`, (err2, ress2) => {
-            // ress2.forEach(e => {
-            //     e.author = {}
-            //     e.author.name = ress[0].name;
-            //     e.author.id = ress[0].id
-            // })
-            console.log("test", ress[0]);
-            res.render("author", {articles: ress2, author: ress[0]})
-        })
-    });
-});
+app.use("/author", require("./routes/author"))
 
 app.listen(3000, () => {
     console.log("Listening on port 3000")
