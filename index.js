@@ -11,6 +11,8 @@ app.engine('hbs', hbs.engine({
     defaultLayout: "main",
     layoutsDir: __dirname + "/views/layouts"
 }))
+console.log(__dirname + "/views/layouts")
+app.use(express.static("public"))
 
 const mysql = require("mysql2")
 
@@ -27,6 +29,16 @@ const con = mysql.createConnection({
 con.connect(function(err) {
     if(err) throw err;
     console.log("Connected to database!");
+})
+
+app.get("/", (req, res) => {
+    let query = "SELECT * FROM article"
+    let articles = []
+    con.query(query, (err, result) => {
+        if(err) throw err;
+        articles = result;
+        res.render("index", {articles});
+    })
 })
 
 app.listen(3000, () => {
