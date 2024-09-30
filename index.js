@@ -14,57 +14,35 @@ app.engine('hbs', hbs.engine({
 console.log(__dirname + "/views/layouts")
 app.use(express.static("public"))
 
-const mysql = require("mysql2")
-
 const bodyparser = require("body-parser")
 app.use(bodyparser.urlencoded({extended: true}))
 
-const con = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "qwerty",
-    database: "joga_mysql"
-})
-
+const con = require("./utils/db");
 con.connect(function(err) {
     if(err) throw err;
     console.log("Connected to database!");
 })
 
-app.get("/", (req, res) => {
-    let query = "SELECT * FROM article"
-    let articles = []
-    con.query(query, (err, result) => {
-        if(err) throw err;
-        articles = result;
-        res.render("index", {articles});
-    })
-})
+const articleRoutes = require("./routes/article")
 
-app.get("/article/:slug", (req, res) => {
-    let query = `SELECT * FROM article WHERE slug='${req.params.slug}'`
-    let article
-    con.query(query, (err, articleResult) => {
-        if(err) throw err;
+app.use("/", articleRoutes)
+app.use("/article", articleRoutes)
 
-        console.log(`SELECT * FROM author WHERE author_id=${articleResult[0].author_id}`)
-        con.query(`SELECT * FROM author WHERE id='${articleResult[0].author_id}'`, (err, authorResult) => {
-            const articleData = articleResult[0]
-            const article = {
-                name: articleData.name,
-                published: articleData.published,
-                image: articleData.image,
-                body: articleData.body,
-                author: {
-                    name: authorResult[0].name // include the author's name here
-                }
-            }
-            console.log(article);
-            res.render('article', {article})
-        });
+app.get("/author/:slug", (req, res) => {
+    const authorId = req.params.slug;
 
-    })
-})
+    con.query(`SELECT * FROM author WHERE id=${authorId}`, (err, ress) => {
+        con.query(`SELECT * FROM article WHERE author_id=${authorId}`, (err2, ress2) => {
+            // ress2.forEach(e => {
+            //     e.author = {}
+            //     e.author.name = ress[0].name;
+            //     e.author.id = ress[0].id
+            // })
+            console.log("test", ress[0]);
+            res.render("author", {articles: ress2, author: ress[0]})
+        })
+    });
+});
 
 app.listen(3000, () => {
     console.log("Listening on port 3000")
